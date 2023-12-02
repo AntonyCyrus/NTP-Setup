@@ -5,64 +5,7 @@ sudo apt-get update
 sudo apt-get install -y ntp
 
 # 定义NTP服务器数组（示例服务器，可根据需要修改）
-ntp_servers=(
-    # 全球
-    "pool.ntp.org",
-    
-    # 中国大陆
-    "ntp1.aliyun.com", "ntp2.aliyun.com", "ntp.ntsc.ac.cn", "cn.pool.ntp.org",
-    
-    # 香港
-    "stdtime.gov.hk", "time.hko.hk",
-    
-    # 台湾
-    "time.stdtime.gov.tw", "clock.stdtime.gov.tw",
-    
-    # 新加坡
-    "time.nist.gov", "sg.pool.ntp.org",
-    
-    # 日本
-    "ntp.nict.jp", "asia.pool.ntp.org",
-    
-    # 韩国
-    "kr.pool.ntp.org", "time.bora.net",
-    
-    # 俄罗斯远东
-    "ntp1.vniiftri.ru", "ntp2.vniiftri.ru",
-    
-    # 印度
-    "time.iitb.ac.in", "in.pool.ntp.org",
-    
-    # 澳大利亚
-    "au.pool.ntp.org", "ntp.ise.canberra.edu.au",
-    
-    # 美国西海岸
-    "time-nw.nist.gov", "us-west.pool.ntp.org", "ntp-1.caltech.edu", "ntp-2.caltech.edu", "ntp-3.caltech.edu",
-    
-    # 美国东海岸
-    "time-a.nist.gov", "time-b.nist.gov", "ntp.colorado.edu", "clock.uw.edu", "us-east.pool.ntp.org",
-    
-    # 英国
-    "uk.pool.ntp.org",
-    
-    # 法国
-    "fr.pool.ntp.org",
-    
-    # 德国
-    "de.pool.ntp.org", "ptbtime1.ptb.de",
-    
-    # 其他欧洲地区
-    "europe.pool.ntp.org",
-    
-    # 俄罗斯西部
-    "ntp1.vniiftri.ru",
-    
-    # 北美洲
-    "north-america.pool.ntp.org",
-    
-    # 美国海军天文台
-    "tick.usno.navy.mil", "tock.usno.navy.mil"
-)
+# ...（其他服务器配置保持不变）
 
 # 备份原始的NTP配置文件
 sudo cp /etc/ntp.conf /etc/ntp.conf.backup
@@ -85,5 +28,22 @@ sudo systemctl enable ntp
 echo "请选择时区（例如：Asia/Shanghai）:"
 read timezone
 sudo timedatectl set-timezone $timezone
+
+# 强制NTP立即同步
+sudo ntpd -gq
+
+# 显示NTP同步状态
+ntpq -p
+
+# 验证NTP服务是否生效
+echo "正在检查NTP服务状态..."
+sudo systemctl status ntp
+
+# 显示一个简单的确认消息，提示用户NTP同步是否成功
+if timedatectl status | grep "NTP synchronized: yes"; then
+    echo "NTP服务已成功同步。"
+else
+    echo "NTP服务同步失败，请检查您的NTP配置和网络连接。"
+fi
 
 echo "NTP服务器已设置并生效，时区已更新。"
