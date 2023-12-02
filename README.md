@@ -21,4 +21,7 @@
 要安装和配置NTP服务器，请运行以下命令：
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/AntonyCyrus/NTP-Setup/main/setup_ntp.sh | sudo bash
+wget https://raw.githubusercontent.com/AntonyCyrus/NTP-Setup/main/setup_ntp.sh
+chmod +x setup_ntp.sh
+sudo ./setup_ntp.sh
+
