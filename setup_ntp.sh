@@ -30,20 +30,19 @@ read timezone
 sudo timedatectl set-timezone $timezone
 
 # 强制NTP立即同步
+sudo service ntp stop
 sudo ntpd -gq
+sudo service ntp start
 
 # 显示NTP同步状态
 ntpq -p
 
 # 验证NTP服务是否生效
-echo "正在检查NTP服务状态..."
-sudo systemctl status ntp
-
-# 显示一个简单的确认消息，提示用户NTP同步是否成功
-if timedatectl status | grep "NTP synchronized: yes"; then
+if timedatectl status | grep -q 'NTP synchronized: yes'; then
     echo "NTP服务已成功同步。"
 else
     echo "NTP服务同步失败，请检查您的NTP配置和网络连接。"
 fi
 
 echo "NTP服务器已设置并生效，时区已更新。"
+
