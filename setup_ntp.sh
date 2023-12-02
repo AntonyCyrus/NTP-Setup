@@ -46,3 +46,28 @@ fi
 
 echo "NTP服务器已设置并生效，时区已更新。"
 
+# 提供卸载和还原选项
+read -p "是否需要卸载NTP并还原初始配置? (y/N): " uninstall_choice
+case $uninstall_choice in
+    [Yy]* )
+        echo "正在卸载NTP服务并还原原始配置..."
+        # 停止NTP服务
+        sudo service ntp stop
+        # 卸载NTP服务
+        sudo apt-get remove --purge -y ntp
+        # 还原原始的ntp配置文件
+        sudo mv /etc/ntp.conf.backup /etc/ntp.conf
+        # 重启系统时间服务
+        sudo systemctl restart systemd-timesyncd.service
+        echo "NTP服务已卸载，原始配置已还原。"
+        ;;
+    [Nn]*|"" )
+        echo "保持当前配置，没有执行卸载。"
+        ;;
+    * )
+        echo "无效输入...退出脚本。"
+        exit 1
+        ;;
+esac
+
+echo "脚本执行完毕。"
