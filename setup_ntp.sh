@@ -56,10 +56,11 @@ fi
 test_ntp_servers() {
     local server_delay
     local server_responses=()
-    local max_servers=5  # Maximum number of servers to select
+    local max_servers=10  # Maximum number of servers to select
 
     echo "正在测试NTP服务器的响应时间..."
     for server in "${ntp_servers[@]}"; do
+        sleep 1
         # Testing each server's response time using ntpdate -q
         server_delay=$(ntpdate -q $server 2>&1 | grep 'offset' | awk '{print $6}')
         
@@ -87,25 +88,21 @@ configure_ntp() {
     # Test and select the best NTP servers
     test_ntp_servers
 
-    # Rest of the configure_ntp function...
-    # ...
-}
-
-    # 安装NTP服务
+    # Install NTP service
     apt-get update && apt-get install -y ntp || { echo "安装NTP失败"; exit 1; }
 
-    # 备份原始的NTP配置文件
+    # Backup the original NTP configuration file
     cp /etc/ntp.conf /etc/ntp.conf.backup || { echo "备份NTP配置失败"; exit 1; }
 
-    # 清空配置文件中现有的NTP服务器
+    # Clear existing NTP servers in the configuration file
     sed -i '/^server /d' /etc/ntp.conf
 
-    # 添加NTP服务器到配置文件
+    # Add NTP servers to the configuration file
     for server in "${ntp_servers[@]}"; do
         echo "server $server iburst" >> /etc/ntp.conf
     done
 
-    # 用户交互：是否重启NTP服务
+    # User interaction: Whether to restart NTP service
     read -p "是否重启NTP服务以使配置生效？[Y/n]: " confirm
     confirm=${confirm:-Y}
     if [[ $confirm == [nN] ]]; then
@@ -115,7 +112,7 @@ configure_ntp() {
         echo "NTP服务已重启。"
     fi
 
-    # 用户交互：是否设置NTP服务开机自启
+    # User interaction: Whether to set NTP service to start on boot
     read -p "是否设置NTP服务开机自启？[Y/n]: " confirm
     confirm=${confirm:-Y}
     if [[ $confirm == [nN] ]]; then
@@ -125,7 +122,7 @@ configure_ntp() {
         echo "NTP服务设置为开机自启。"
     fi
 
-    # 用户交互：是否强制NTP立即同步
+    # User interaction: Whether to force immediate NTP synchronization
     read -p "是否强制NTP立即同步？[Y/n]: " confirm
     confirm=${confirm:-Y}
     if [[ $confirm == [nN] ]]; then
@@ -135,7 +132,7 @@ configure_ntp() {
         echo "NTP同步完成。"
     fi
 
-    # 用户交互：是否显示NTP同步状态
+    # User interaction: Whether to display NTP synchronization status
     read -p "是否显示NTP同步状态？[Y/n]: " confirm
     confirm=${confirm:-Y}
     if [[ $confirm == [nN] ]]; then
@@ -146,20 +143,20 @@ configure_ntp() {
 }
 
 change_timezone() {
-    # 选择时区
+    # Select timezone
     echo "请选择时区（例如：Asia/Shanghai）:"
     read timezone
     timedatectl set-timezone "$timezone" || { echo "更改时区失败"; exit 1; }
 
-    # 显示系统时间
+    # Display system time
     timedatectl
 
-    # 显示系统当前时间
+    # Display the current system time
     date
 }
 
 uninstall_ntp() {
-    # 确认是否继续卸载
+    # Confirm whether to continue uninstallation
     read -p "您确定要卸载NTP服务吗？[y/N]: " confirm
     confirm=${confirm:-N}
     if [[ $confirm != [yY] ]]; then
@@ -167,23 +164,23 @@ uninstall_ntp() {
         return
     fi
 
-    # 停止NTP服务
+    # Stop the NTP service
     systemctl stop ntp
 
-    # 卸载NTP服务
+    # Uninstall the NTP service
     apt-get remove --purge -y ntp || { echo "卸载NTP失败"; exit 1; }
 
-    # 还原原始的ntp配置文件
+    # Restore the original ntp configuration file
     if [ -f /etc/ntp.conf.backup ]; then
         mv /etc/ntp.conf.backup /etc/ntp.conf
     fi
 
-    # 重启系统时间服务
+    # Restart the system time service
     systemctl restart systemd-timesyncd.service
     echo "NTP服务已卸载，原始配置已还原。"
 }
 
-# 主菜单
+# Main menu
 while true; do
     echo "请选择一个选项:"
     echo "1) 配置添加NTP服务器并保存并开机自启"
