@@ -1,43 +1,36 @@
+#!/bin/bash
 
-# 检查脚本是否已经存在并进行覆盖更新
-SCRIPT_PATH="/usr/local/bin/setup_ntp.sh"
+# 标记文件路径
+FLAG_FILE="/tmp/setup_ntp_executed.flag"
 
-if [ -f "$SCRIPT_PATH" ]; then
-    echo "脚本已存在，进行覆盖更新..."
+# 如果标记文件存在，跳过更新步骤
+if [ -f "$FLAG_FILE" ]; then
+    echo "脚本已更新且已运行。跳过更新步骤..."
 else
-    echo "脚本不存在，开始下载..."
+    # 检查脚本是否已经存在并进行覆盖更新
+    SCRIPT_PATH="/usr/local/bin/setup_ntp.sh"
+
+    if [ -f "$SCRIPT_PATH" ]; then
+        echo "脚本已存在，进行覆盖更新..."
+    else
+        echo "脚本不存在，开始下载..."
+    fi
+
+    # 下载或更新脚本自身
+    curl -o "$SCRIPT_PATH" https://raw.githubusercontent.com/AntonyCyrus/NTP-Setup/main/setup_ntp.sh
+
+    # 赋予执行权限
+    chmod +x "$SCRIPT_PATH"
+
+    # 创建标记文件
+    touch "$FLAG_FILE"
+
+    # 运行脚本
+    bash "$SCRIPT_PATH"
+
+    # 退出以避免重复执行
+    exit 0
 fi
-
-# 下载或更新脚本自身
-curl -o "$SCRIPT_PATH" https://raw.githubusercontent.com/AntonyCyrus/NTP-Setup/main/setup_ntp.sh
-
-# 赋予执行权限
-chmod +x "$SCRIPT_PATH"
-
-# 运行脚本
-bash "$SCRIPT_PATH"
-
-exit 0
-
-# 检查脚本是否已经存在并进行覆盖更新
-SCRIPT_PATH="/usr/local/bin/setup_ntp.sh"
-
-if [ -f "$SCRIPT_PATH" ]; then
-    echo "脚本已存在，进行覆盖更新..."
-else
-    echo "脚本不存在，开始下载..."
-fi
-
-# 下载或更新脚本自身
-curl -o "$SCRIPT_PATH" https://raw.githubusercontent.com/AntonyCyrus/NTP-Setup/main/setup_ntp.sh
-
-# 赋予执行权限
-chmod +x "$SCRIPT_PATH"
-
-# 运行脚本
-bash "$SCRIPT_PATH"
-
-exit 0
 
 #!/bin/bash
 
